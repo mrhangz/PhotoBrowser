@@ -6,3 +6,4 @@ An iOS app written in Swift. It lists all photo categories on 500px.com and show
 ## Plans
 - Refactor to MVVM
 - Add tests
+- Implement RxSwift
