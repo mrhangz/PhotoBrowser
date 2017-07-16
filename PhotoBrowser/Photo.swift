@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 struct Photo {
     var id: Int
@@ -21,5 +22,13 @@ struct Photo {
         self.author = author
         self.imageUrl = imageUrl
         self.largeImageUrl = largeImageUrl
+    }
+    
+    init(json: JSON) {
+        self.id = json["id"].intValue
+        self.name = json["name"].stringValue
+        self.author = json["user"]["username"].stringValue
+        self.imageUrl = json["images"].arrayValue[0]["url"].stringValue
+        self.largeImageUrl = json["images"].arrayValue[1]["url"].stringValue
     }
 }

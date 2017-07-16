@@ -17,84 +17,61 @@ let padding: CGFloat = 8.0
 class ViewController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var loadMoreBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var loadMoreButton: UIButton!
     private let refreshControl = UIRefreshControl()
-    private var currentPage = 1
-    private var totalPage = 0
-    fileprivate var photoArray: [Photo] = []
-    
-    var category: String?
+    var viewModel: ListViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         if #available(iOS 10.0, *) {
             collectionView.refreshControl = refreshControl
         } else {
             collectionView.addSubview(refreshControl)
         }
-        refreshControl.addTarget(self, action: #selector(refreshCollectionView), for: .valueChanged)
-        self.navigationItem.title = category!
-        refreshCollectionView()
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    func refreshCollectionView() {
-        currentPage = 1
-        totalPage = 0
-        photoArray = []
-        collectionView.reloadData()
-        getPhotos()
-    }
-    
-    func getPhotos() {
-        API().getPhotos(category: category!, page: currentPage) { [weak self] (result, error) in
-            if (error != nil) {
-                print("\(result["error"].string!)")
-            } else {
-                self?.currentPage = result["current_page"].int!
-                self?.totalPage = result["total_pages"].int!
-                for dict in result["photos"].array! {
-                    let photo = Photo.init(id: dict["id"].intValue,
-                                           name: dict["name"].stringValue,
-                                           author: dict["user"]["username"].stringValue,
-                                           imageUrl: dict["images"].arrayValue[0]["url"].stringValue,
-                                           largeImageUrl: dict["images"].arrayValue[1]["url"].stringValue)
-                    
-                    self?.photoArray.append(photo)
-                }
-                UIView.animate(withDuration: 2.0, animations: {
-                    self?.loadMoreBottomConstraint.constant = -50
-                })
-                self?.collectionView.reloadData()
-                self?.refreshControl.endRefreshing()
-            }
+        refreshControl.addTarget(self, action: #selector(refreshFeed), for: .valueChanged)
+        self.navigationItem.title = viewModel.category
+        viewModel.refreshFeed() {
+            self.collectionView.reloadData()
         }
     }
     
-    @IBAction func loadMore(sender: UIButton) {
-        currentPage = currentPage + 1
-        getPhotos()
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
+    func refreshFeed() {
+        viewModel.refreshFeed() {
+            self.reloadCollectionView()
+        }
+    }
+    
+    @IBAction func loadMore() {
+        viewModel.getPhotos(forPage: viewModel.currentPage + 1) {
+            self.reloadCollectionView()
+        }
+    }
+    
+    func reloadCollectionView() {
+        self.collectionView.reloadData()
+        self.refreshControl.endRefreshing()
+        self.loadMoreButton.isHidden = true
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         for indexPath in collectionView.indexPathsForVisibleItems {
-            if currentPage != totalPage && indexPath.row == photoArray.count - 1 {
-                self.loadMoreBottomConstraint.constant = 8
+            if viewModel?.currentPage != viewModel?.totalPage && indexPath.row == viewModel.photoArray.count - 1 {
+                self.loadMoreButton.isHidden = false
                 break
             } else {
-                self.loadMoreBottomConstraint.constant = -50
+                self.loadMoreButton.isHidden = true
             }
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as? FullScreenImageViewController
-        destinationVC?.photoArray = photoArray
+        destinationVC?.photoArray = viewModel.photoArray
         destinationVC?.currentIndex = (sender as? IndexPath)?.row
     }
     
@@ -108,26 +85,24 @@ extension ViewController: UICollectionViewDelegate {
 
 extension ViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCollectionViewCell
-        let photo = photoArray[indexPath.row]
-        cell?.titleLabel.text = photo.name
-        cell?.authorLabel.text = photo.author
-        Alamofire.request(photo.imageUrl).responseImage { response in
-            if let image = response.result.value {
-                cell?.imageView.image = image
-            }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as! PhotoCollectionViewCell
+        let photo = viewModel.photoArray[indexPath.row]
+        cell.titleLabel.text = photo.name
+        cell.authorLabel.text = photo.author
+        viewModel.getCellImage(forIndex: indexPath.row) { (image) in
+            cell.imageView.image = image as? UIImage
         }
-        return cell!
+        return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photoArray.count
+        return viewModel.photoArray.count
     }
 }
 
 extension ViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.view.frame.size.width / numberOfColumns - (padding / 2), height: self.view.frame.size.height / numberOfRows - (padding / 2))
+        return CGSize(width: collectionView.frame.size.width / numberOfColumns - (padding / 2), height: collectionView.frame.size.height / numberOfRows - (padding / 2))
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

@@ -23,7 +23,7 @@ private var params: [String: Any] = [
     "consumer_key": ConsumerKey
 ]
 
-class API: NSObject {
+class APIManager: NSObject {
     
     lazy var manager: SessionManager = {
         Alamofire.SessionManager.default.session.configuration.timeoutIntervalForRequest = TimeoutIntervalForRequest
@@ -31,18 +31,29 @@ class API: NSObject {
         return Alamofire.SessionManager.default
     }()
     
-    func getPhotos(category: String, page: Int, callback: @escaping (JSON, Error?) -> Void) -> Void {
+    func getPhotos(category: String, page: Int, callback: @escaping (JSON, Error?) -> Void) {
         let url = Endpoints.GetPhotos.path
         params["only"] = category
         params["page"] = page
         manager.request(url, method: .get, parameters: params)
             .validate()
             .responseJSON { response in
-                if response.result.isSuccess {
+                switch response.result {
+                case .success:
                     callback(JSON(response.result.value!), nil)
-                } else {
-                    callback(JSON(response.data!), response.result.error)
+                case .failure(let error):
+                    callback(JSON(response.data!), error)
                 }
+        }
+    }
+    
+    func getImage(imageURL: String, completion: @escaping (UIImage?) -> Void) {
+        Alamofire.request(imageURL).responseImage { response in
+            if let image = response.result.value {
+                completion(image)
+            } else {
+                completion(nil)
+            }
         }
     }
     

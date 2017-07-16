@@ -136,15 +136,16 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="rgP-mW-xdT"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVO-gA-T5j">
-                                <rect key="frame" x="125" y="679" width="124" height="30"/>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVO-gA-T5j">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="30" id="Doq-m1-d2e"/>
-                                    <constraint firstAttribute="width" constant="124" id="eUi-By-bF2"/>
+                                    <constraint firstAttribute="height" constant="44" id="Doq-m1-d2e"/>
+                                    <constraint firstAttribute="width" constant="375" id="eUi-By-bF2"/>
                                 </constraints>
                                 <state key="normal" title="load more"/>
                                 <connections>
-                                    <action selector="loadMoreWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BTx-hc-gUG"/>
+                                    <action selector="loadMore" destination="BYZ-38-t0r" eventType="touchUpInside" id="wqT-zO-VZF"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -152,7 +153,7 @@
                         <constraints>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="wnl-Ec-aHf" secondAttribute="bottom" id="0eX-ur-HcK"/>
                             <constraint firstItem="wnl-Ec-aHf" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="7it-wh-A2b"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="hVO-gA-T5j" secondAttribute="bottom" constant="-42" id="AGP-l6-EVD"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="hVO-gA-T5j" secondAttribute="bottom" id="AGP-l6-EVD"/>
                             <constraint firstItem="hVO-gA-T5j" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Gey-oo-Dmw"/>
                             <constraint firstAttribute="trailing" secondItem="wnl-Ec-aHf" secondAttribute="trailing" id="Ic5-Jq-VCa"/>
                             <constraint firstItem="wnl-Ec-aHf" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="KF1-bw-Gwr"/>
@@ -160,7 +161,7 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="wnl-Ec-aHf" id="jw0-hq-OCx"/>
-                        <outlet property="loadMoreBottomConstraint" destination="AGP-l6-EVD" id="Oev-S7-4yA"/>
+                        <outlet property="loadMoreButton" destination="hVO-gA-T5j" id="cbI-LT-DaB"/>
                         <segue destination="psJ-Rm-Faa" kind="show" identifier="FullScreen" id="sNz-mC-RAL"/>
                     </connections>
                 </viewController>
@@ -172,7 +173,7 @@
         <scene sceneID="88W-WP-4Ng">
             <objects>
                 <collectionViewController id="psJ-Rm-Faa" customClass="FullScreenImageViewController" customModule="PhotoBrowser" customModuleProvider="target" sceneMemberID="viewController">
-                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" id="goX-Li-LbU">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" id="goX-Li-LbU">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
